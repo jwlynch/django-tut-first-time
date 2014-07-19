@@ -1,9 +1,11 @@
-# used by detail, results and vote
+# used by results and vote
 from django.http import HttpResponse
 # no longer used -- it's all in the shortcut render
 from django.template import RequestContext, loader
-# used by index only atm
+# used by index and detail
 from django.shortcuts import render
+# used by detail
+from django.http import Http404
 
 from polls.models import Poll
 
@@ -13,7 +15,11 @@ def index(request):
     return render(request, 'polls/index.html', context)
 
 def detail(request, poll_id):
-    return HttpResponse("You're looking at poll %s." % poll_id)
+    try:
+        poll = Poll.objects.get(pk=poll_id)
+    except Poll.DoesNotExist:
+        raise Http404
+    return render(request, 'polls/detail.html', {'poll': poll})
 
 def results(request, poll_id):
     return HttpResponse("You're looking at the results of poll %s." % poll_id)
